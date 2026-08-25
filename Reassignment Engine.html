@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>— AI Reassignment Engine · Hackathon Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,800;1,9..144,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:      #f5f2eb;
+    --bg2:     #edeae0;
+    --bg3:     #e4e0d4;
+    --ink:     #1a1814;
+    --ink2:    #4a4640;
+    --ink3:    #8a8478;
+    --rule:    rgba(26,24,20,0.1);
+    --rule2:   rgba(26,24,20,0.18);
+    --accent:  #c84b1f;
+    --accent2: #e8622a;
+    --teal:    #1a6b5a;
+    --amber:   #b07d1a;
+    --amber2:  #d49a22;
+    --green:   #2a6b3a;
+    --mono:    'DM Mono', monospace;
+    --serif:   'Fraunces', serif;
+  }
+
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--serif); background: var(--bg); color: var(--ink); min-height: 100vh; line-height: 1.6; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0;
+  }
+  .page { max-width: 820px; margin: 0 auto; padding: 0 28px 100px; position: relative; z-index: 1; }
+
+  /* MASTHEAD */
+  .masthead { border-bottom: 2px solid var(--ink); padding: 48px 0 28px; display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 20px; }
+  .masthead-kicker { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink3); margin-bottom: 12px; }
+  .masthead-title { font-size: clamp(38px,6vw,62px); font-weight: 800; line-height: 0.95; letter-spacing: -0.03em; font-style: italic; }
+  .masthead-title em { font-style: normal; color: var(--accent); }
+  .masthead-meta { text-align: right; font-family: var(--mono); font-size: 11px; color: var(--ink3); line-height: 2; }
+  .masthead-meta strong { color: var(--ink); font-size: 13px; display: block; }
+
+  /* TABS */
+  .byline { display: flex; border-bottom: 1px solid var(--rule2); margin-bottom: 36px; overflow-x: auto; -ms-overflow-style: none; scrollbar-width: none; }
+  .byline::-webkit-scrollbar { display: none; }
+  .tab { font-family: var(--mono); font-size: 11px; padding: 12px 20px; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -1px; color: var(--ink3); cursor: pointer; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; transition: color 0.15s, border-color 0.15s; }
+  .tab:hover { color: var(--ink2); }
+  .tab.active       { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab.teal-tab     { color: var(--teal); }
+  .tab.teal-tab.active  { color: var(--teal);  border-bottom-color: var(--teal); }
+  .tab.amber-tab    { color: var(--amber); }
+  .tab.amber-tab.active { color: var(--amber); border-bottom-color: var(--amber); }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+
+
+  /* SECTION */
+  .section { margin-bottom: 32px; }
+  .section-rule { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+  .section-rule-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink3); white-space: nowrap; }
+  .section-rule-line  { flex: 1; height: 1px; background: var(--rule); }
+
+  /* PROSE */
+  .prose { font-size: 14px; color: var(--ink2); line-height: 1.85; margin-bottom: 16px; }
+  .prose strong { color: var(--ink); font-weight: 600; }
+  .prose code { font-family: var(--mono); font-size: 12px; background: var(--bg3); border: 1px solid var(--rule2); padding: 1px 6px; border-radius: 3px; color: var(--accent); }
+  .prose ul { padding-left: 20px; margin: 8px 0; }
+  .prose li { margin-bottom: 5px; }
+
+  /* CARDS */
+  .card { background: white; border: 1px solid var(--rule2); border-radius: 4px; padding: 22px 24px; margin-bottom: 14px; transition: box-shadow 0.2s; }
+  .card:hover { box-shadow: 0 2px 12px rgba(26,24,20,0.06); }
+  .card-head { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 12px; }
+  .card-tag { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); padding-top: 4px; min-width: 32px; }
+  .card-tag.teal  { color: var(--teal); }
+  .card-tag.amber { color: var(--amber); }
+  .card-title { font-size: 16px; font-weight: 600; color: var(--ink); line-height: 1.3; margin-bottom: 6px; }
+  .card-pills { display: flex; flex-wrap: wrap; gap: 5px; }
+  .pill { font-family: var(--mono); font-size: 10px; padding: 2px 9px; border-radius: 2px; border: 1px solid var(--rule2); color: var(--ink3); letter-spacing: 0.05em; }
+  .pill.accent { border-color: rgba(200,75,31,0.3); color: var(--accent); background: rgba(200,75,31,0.05); }
+  .pill.teal   { border-color: rgba(26,107,90,0.3);  color: var(--teal);   background: rgba(26,107,90,0.05); }
+  .pill.amber  { border-color: rgba(176,125,26,0.3); color: var(--amber);  background: rgba(176,125,26,0.05); }
+  .card-body { font-size: 13px; color: var(--ink2); line-height: 1.85; margin-left: 48px; }
+  .card-body ul { padding-left: 18px; margin: 8px 0; }
+  .card-body li { margin-bottom: 4px; }
+  .card-body code { font-family: var(--mono); font-size: 11.5px; background: var(--bg2); border: 1px solid var(--rule2); padding: 1px 5px; border-radius: 3px; color: var(--accent); }
+  .card-body strong { color: var(--ink); font-weight: 600; }
+
+  /* CALLOUTS */
+  .callout { border-radius: 3px; padding: 12px 16px; margin: 12px 0 0; font-size: 12.5px; line-height: 1.75; }
+  .callout-label { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 500; margin-bottom: 5px; }
+  .callout.warn { background: rgba(176,125,26,0.08); border-left: 3px solid var(--amber); color: #5a3e08; }
+  .callout.warn .callout-label { color: var(--amber); }
+  .callout.info { background: rgba(26,107,90,0.07);  border-left: 3px solid var(--teal);  color: #0d3d30; }
+  .callout.info .callout-label { color: var(--teal); }
+  .callout.note { background: rgba(200,75,31,0.07);  border-left: 3px solid var(--accent); color: #5a1a08; }
+  .callout.note .callout-label { color: var(--accent); }
+  .callout.good { background: rgba(42,107,58,0.07);  border-left: 3px solid var(--green);  color: #163320; }
+  .callout.good .callout-label { color: var(--green); }
+
+  /* ROADMAP */
+  .roadmap { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+  @media (max-width: 560px) { .roadmap { grid-template-columns: 1fr; } }
+  .roadmap-card { background: white; border: 1px solid var(--rule2); border-top: 3px solid var(--rule2); border-radius: 3px; padding: 16px 18px; }
+  .roadmap-card.sprint2 { border-top-color: var(--teal); }
+  .roadmap-card.sprint3 { border-top-color: var(--amber); }
+  .roadmap-sprint { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 10px; }
+  .roadmap-sprint.sprint2 { color: var(--teal); }
+  .roadmap-sprint.sprint3 { color: var(--amber); }
+  .roadmap-items { list-style: none; font-size: 12.5px; color: var(--ink2); line-height: 1.9; }
+  .roadmap-items li::before { content: '— '; color: var(--ink3); font-family: var(--mono); font-size: 10px; }
+  .roadmap-items code { font-family: var(--mono); font-size: 10.5px; background: var(--bg2); border: 1px solid var(--rule); padding: 0 4px; border-radius: 2px; color: var(--ink2); }
+
+  /* ADR CARDS */
+  .adr-card { background: white; border: 1px solid var(--rule2); border-left: 3px solid var(--ink3); border-radius: 0 4px 4px 0; padding: 16px 20px; margin-bottom: 10px; }
+  .adr-card.teal { border-left-color: var(--teal); }
+  .adr-q { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 7px; }
+  .adr-q span { font-family: var(--mono); font-size: 10px; color: var(--ink3); margin-right: 8px; letter-spacing: 0.08em; }
+  .adr-q span.teal { color: var(--teal); }
+  .adr-detail { font-size: 12.5px; color: var(--ink2); line-height: 1.8; }
+  .adr-detail code { font-family: var(--mono); font-size: 11px; background: var(--bg2); border: 1px solid var(--rule); padding: 0 4px; border-radius: 2px; color: var(--accent); }
+
+  /* SCORING */
+  .score-strip { display: grid; grid-template-columns: repeat(auto-fit,minmax(100px,1fr)); gap: 8px; margin-bottom: 18px; }
+  .score-cell { background: white; border: 1px solid var(--rule2); border-radius: 3px; padding: 14px; text-align: center; }
+  .score-num { font-family: var(--mono); font-size: 26px; font-weight: 500; color: var(--ink); }
+  .score-num.accent { color: var(--accent); }
+  .score-num.teal   { color: var(--teal); }
+  .score-num.green  { color: var(--green); font-size: 20px; }
+  .score-label { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink3); margin-top: 4px; line-height: 1.5; }
+  .rubric { background: white; border: 1px solid var(--rule2); border-radius: 4px; overflow: hidden; margin-bottom: 14px; }
+  .rubric table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .rubric th { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink3); padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--rule2); background: var(--bg2); }
+  .rubric td { padding: 10px 14px; border-bottom: 1px solid var(--rule); color: var(--ink2); vertical-align: top; line-height: 1.6; }
+  .rubric tr:last-child td { border-bottom: none; }
+  .rubric td:first-child { color: var(--ink); font-weight: 600; white-space: nowrap; font-family: var(--mono); font-size: 11px; }
+  .rubric td:last-child { font-family: var(--mono); color: var(--accent); text-align: right; white-space: nowrap; font-size: 11px; }
+
+  /* PHASES */
+  .phases { display: flex; flex-direction: column; gap: 12px; }
+  .phase { background: white; border: 1px solid var(--rule2); border-radius: 4px; padding: 18px 22px; display: grid; grid-template-columns: 110px 1fr; gap: 20px; align-items: start; }
+  .phase.teal { border-left: 3px solid var(--teal); }
+  .phase-time { font-family: var(--mono); font-size: 12px; color: var(--accent); font-weight: 500; line-height: 1.4; padding-top: 2px; }
+  .phase.teal .phase-time { color: var(--teal); }
+  .phase-time span { display: block; font-size: 10px; color: var(--ink3); font-weight: 400; margin-top: 3px; }
+  .phase-name { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+  .phase-detail { font-size: 12.5px; color: var(--ink2); line-height: 1.75; }
+  .phase-detail code { font-family: var(--mono); font-size: 11px; background: var(--bg2); border: 1px solid var(--rule); padding: 0 4px; border-radius: 2px; color: var(--accent); }
+  @media (max-width: 540px) { .phase { grid-template-columns: 1fr; } }
+
+  /* SPEC */
+  .spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 560px) { .spec-grid { grid-template-columns: 1fr; } }
+  .spec-card { background: white; border: 1px solid var(--rule2); border-radius: 4px; padding: 16px 18px; }
+  .spec-title { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink3); margin-bottom: 12px; }
+  .spec-title.accent { color: var(--accent); }
+  .spec-title.teal   { color: var(--teal); }
+  .spec-title.amber  { color: var(--amber); }
+  .spec-body { font-family: var(--mono); font-size: 11.5px; color: var(--ink2); line-height: 1.9; }
+  .spec-body code { background: var(--bg2); border: 1px solid var(--rule); padding: 0 4px; border-radius: 2px; color: var(--accent); font-size: 11px; }
+
+  /* ADDENDUM */
+  .addendum-header { background: var(--ink); color: var(--bg); border-radius: 4px 4px 0 0; padding: 12px 18px; display: flex; align-items: center; gap: 14px; }
+  .addendum-title { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; flex: 1; }
+  .addendum-tag   { font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.5; }
+  .code-block { background: #1a1814; border: 1px solid rgba(255,255,255,0.08); border-top: none; border-radius: 0 0 4px 4px; padding: 20px 22px; margin-bottom: 20px; overflow-x: auto; }
+  .code-block pre { font-family: var(--mono); font-size: 12px; color: #d4cfc4; line-height: 1.75; white-space: pre; }
+  .code-block .cm { color: #6b8c6b; }
+  .code-block .kw { color: #c47f4a; }
+  .code-block .st { color: #8fbc7a; }
+  .code-block .an { color: #7a9fbf; }
+  .code-block .ty { color: #bf9f6a; }
+  .code-block .nu { color: #9fbf8a; }
+
+  @media print {
+    body { background: white; }
+    .timer, .byline { display: none; }
+    .panel { display: block !important; margin-bottom: 40px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="masthead">
+    <div>
+      <div class="masthead-kicker">Hackathon · Solo</div>
+      <h1 class="masthead-title"><em>AI</em> Reassignment<br>Engine</h1>
+    </div>
+    <div class="masthead-meta">
+      <strong>5 hours</strong>
+      Solo · Individual<br>
+      Spring Boot 3.x<br>
+      React 18 or Angular 17<br>
+      117 pts total
+    </div>
+  </div>
+
+  <div class="byline" style="margin-top:20px">
+    <button class="tab active"    onclick="sw('brief',this)">Brief</button>
+    <button class="tab"           onclick="sw('tasks',this)">Tasks</button>
+    <button class="tab"           onclick="sw('adr',this)">ADR Guide</button>
+    <button class="tab"           onclick="sw('extensions',this)">Extensions</button>
+    <button class="tab teal-tab"  onclick="sw('depth',this)">Design Depth</button>
+    <button class="tab"           onclick="sw('scoring',this)">Scoring &amp; Timeline</button>
+    <button class="tab"           onclick="sw('spec',this)">Tech Spec</button>
+  </div>
+
+
+  <!-- ══ BRIEF ══ -->
+  <div class="panel active" id="panel-brief">
+    <div class="section">
+      <div class="section-rule"><span class="section-rule-label">The scenario</span><div class="section-rule-line"></div></div>
+      <div class="prose">
+        ZipRun runs a fleet of delivery agents across the city. Orders are manually assigned to agents at the start of each shift — that works fine until something goes wrong mid-day. An agent calls in sick. A bike breaks down. Someone becomes unavailable after already being handed a set of orders.<br><br>
+        When that happens today, an ops manager notices it, opens a spreadsheet, figures out who has capacity, and reassigns manually. It works — but it's slow, it depends on one person paying attention, and it fails silently when no one is watching.<br><br>
+        <strong>That's the problem you're solving.</strong> When an agent goes offline, your system picks it up automatically, figures out which orders are affected, uses AI to recommend the best reassignment, and puts that recommendation in front of ops for a quick approval — without anyone having to ask for it.
+      </div>
+      <div class="callout info">
+        <div class="callout-label">Scope for this sprint</div>
+        You're building a reactive reassignment engine — not a full dispatch system. Order creation workflows, zone management, and SLA dashboards are coming in sprint 2 and 3. Your job right now is to nail the reassignment loop and build the foundation that makes those extensions straightforward to add. The Extensions tab has the full roadmap.
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-rule"><span class="section-rule-label">What you're building</span><div class="section-rule-line"></div></div>
+      <div class="prose">
+        <ul>
+          <li><strong>A domain model</strong> — clean entities with the right state machines to support reassignment today and sprint 2/3 extensions without structural rework</li>
+          <li><strong>A routing engine</strong> — a pluggable strategy interface with one rule-based implementation and one AI-powered one, switchable at runtime without a restart</li>
+          <li><strong>An AI advisor</strong> — an LLM integration that looks at an order, the available agent roster, and the situation context, then comes back with a recommended agent, a confidence score, and a plain-English explanation ops can actually act on</li>
+          <li><strong>An agentic re-planning loop</strong> — when an agent goes offline, the system spots the affected orders, re-runs routing, and queues reassignment suggestions for ops to approve — all without anyone clicking a button</li>
+          <li><strong>A minimal ops interface</strong> — built in React or Angular, showing pending reassignment suggestions with AI reasoning and accept/reject controls</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-rule"><span class="section-rule-label">A few things worth knowing</span><div class="section-rule-line"></div></div>
+      <div class="prose">
+        <ul>
+          <li>This is a solo effort — every line of code and every architectural call is yours alone, and that's a good thing. You get to make real decisions.</li>
+          <li>AI coding tools — Cursor, Copilot, Claude — are fair game and genuinely encouraged. We use them too. The only thing we'd ask is that you understand what you've shipped, because we'll walk through it together afterwards.</li>
+          <li>The walkthrough after submission is a conversation, not an exam. We'll trace a couple of paths through the code together, so write things you can explain, not just things that work.</li>
+          <li>What you're submitting: a public GitHub repo, a 5-minute demo video, and an <code>ADR.md</code>. The ADR is the piece most people underestimate — give it the same attention as the code.</li>
+          <li>Two addenda are at the end of this brief — a seed script and an LLM gateway utility — to save you setup time on things that don't carry evaluation signal. Use them, adapt them, or ignore them entirely.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══ TASKS ══ -->
+  <div class="panel" id="panel-tasks">
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-tag">T-1</div>
+        <div>
+          <div class="card-title">Domain model &amp; API</div>
+          <div class="card-pills"><span class="pill accent">Backend</span><span class="pill">20 pts</span><span class="pill">~50 min</span></div>
+        </div>
+      </div>
+      <div class="card-body">
+        Start here — get the foundation right and the rest of the build flows naturally. Think about the state machines before you model the entities; the transitions matter more than the field list.<br><br>
+        <strong>Order</strong> — captures identity, which agent it's assigned to, and where it is in its lifecycle: <code>ASSIGNED → REASSIGNMENT_PENDING → REASSIGNED → DELIVERED</code><br><br>
+        <strong>Agent</strong> — captures identity, current order load, and availability: <code>AVAILABLE</code>, <code>BUSY</code>, <code>OFFLINE</code><br><br>
+        <strong>ReassignmentSuggestion</strong> — this one threads through everything, so design it carefully. It needs: which order it relates to, which agent is recommended, the AI's confidence score (0.0–1.0), the AI's plain-English reasoning, its own status (<code>PENDING → ACCEPTED | REJECTED</code>), and what triggered it (<code>INITIAL</code> or <code>AGENT_OFFLINE</code>). That <code>triggerReason</code> field connects your domain model to the agentic loop in T-4 and to the re-plan badge in the UI — worth getting in early.<br><br>
+        <strong>Four endpoints to wire up:</strong>
+        <ul>
+          <li><code>POST /orders</code> — create an order pre-assigned to an agent, simulating the morning manual assignment</li>
+          <li><code>GET /orders?status=</code> — list orders, filterable by status</li>
+          <li><code>PATCH /agents/{id}/status</code> — update agent availability; this is what fires the agentic loop</li>
+          <li><code>PATCH /suggestions/{id}</code> — accept or reject a suggestion, with the new status in the request body</li>
+        </ul>
+        <div class="callout info">
+          <div class="callout-label">Designing for what's coming</div>
+          Sprint 2 brings zone awareness, capacity constraints, weight classes, and SLA deadlines. You're not building those today, but a couple of minutes thinking about where they'd live in your model is well spent. A nullable placeholder field now costs nothing. A migration in sprint 2 costs a sprint. Your ADR should touch on at least one of these.
+        </div>
+        <div class="callout warn">
+          <div class="callout-label">Seed data</div>
+          Addendum A has a ready-to-run seed script — 5 agents and 8 pre-assigned orders. Use it as-is or adapt it to your schema. No need to write seed data from scratch.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-tag">T-2</div>
+        <div>
+          <div class="card-title">Pluggable routing engine</div>
+          <div class="card-pills"><span class="pill accent">Backend · Design Pattern</span><span class="pill">25 pts</span><span class="pill">~55 min</span></div>
+        </div>
+      </div>
+      <div class="card-body">
+        The routing engine picks the best available agent for a given order. The interesting design challenge isn't the picking logic itself — it's making the engine genuinely replaceable without touching existing code when sprint 2 introduces a new strategy.<br><br>
+        Define a routing contract that takes an order and a list of available agents and returns an ordered list of recommendations. Then build two implementations against it:<br><br>
+        <strong>A rule-based strategy</strong> — recommend the available agent carrying the fewest active orders. Simple, deterministic, no external dependencies, and a solid fallback when the AI is unavailable.<br><br>
+        <strong>An AI strategy</strong> — that's T-3, but design the interface with it in mind from the start.<br><br>
+        The active strategy should be switchable via config at runtime — no code change, no restart. How you wire that switchability is a genuine architectural decision worth an ADR entry.<br><br>
+        Wire up <code>POST /orders/{id}/suggest</code> — runs the active strategy, persists a <code>ReassignmentSuggestion</code>, and returns it.
+        <div class="callout warn">
+          <div class="callout-label">Two callers, one interface</div>
+          Your routing contract gets called from two places — an HTTP endpoint for on-demand suggestions, and an async event handler in the agentic loop. Design it so both callers can use it without modification. That constraint is worth factoring in before you get to T-4, not after.
+        </div>
+        <div class="callout info">
+          <div class="callout-label">Sprint 2 heads up</div>
+          Sprint 2 adds a <code>ZoneAffinityStrategy</code>. Ideally, adding it means implementing your contract and registering it — nothing more. Where does that extension point sit in your design?
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-tag">T-3</div>
+        <div>
+          <div class="card-title">AI routing strategy</div>
+          <div class="card-pills"><span class="pill amber">AI Integration</span><span class="pill">25 pts</span><span class="pill">~55 min</span></div>
+        </div>
+      </div>
+      <div class="card-body">
+        This is the AI implementation of your routing contract. It calls an LLM, gets back a recommendation, validates it, and either uses it or falls back gracefully.<br><br>
+        Give the LLM what it needs to reason well: the order details, a snapshot of all available agents with their current load, and the trigger context — is this a first assignment, or a recovery from an agent going offline? Those are different situations and the model should know which one it's in.<br><br>
+        Expect back: a recommended agent identifier, a confidence score between 0 and 1, and a plain-English explanation an ops person can actually act on. Store that reasoning in the suggestion and display it verbatim in the UI — that's the part ops reads.<br><br>
+        A few things worth getting right:
+        <ul>
+          <li>Validate the returned agent identifier against your actual agent list — LLMs occasionally hallucinate identifiers</li>
+          <li>Handle timeouts, quota errors, and unparseable responses — fall back to the rule-based strategy and log what happened</li>
+          <li>Keep AI calls off the critical path — the main request flow shouldn't wait on an LLM</li>
+        </ul>
+        <div class="callout warn">
+          <div class="callout-label">Two prompts, not one</div>
+          An initial suggestion and a re-plan after an agent goes offline are genuinely different situations. The re-plan prompt should tell the model what happened — which agent failed, how many orders are now stranded, and that this is a recovery. If your two prompts are essentially the same document with one field added, the model isn't getting the context it needs to reason differently. Both prompts will come up in the walkthrough.
+        </div>
+        <div class="callout good">
+          <div class="callout-label">Addendum B</div>
+          Addendum B has a working <code>callLLM(String prompt)</code> utility covering the HTTP wire format for Gemini, Groq, and Ollama. Prompt construction, response parsing, validation, and fallback are all yours — the addendum just removes the provider-specific boilerplate.
+        </div>
+        <div class="callout info">
+          <div class="callout-label">Bonus · +5 pts</div>
+          If time allows: <code>POST /orders/{id}/suggest/stream</code> — stream the LLM's reasoning token by token via Server-Sent Events. Ops sees the AI thinking in real time before the suggestion lands.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-tag teal">T-4</div>
+        <div>
+          <div class="card-title">Agentic re-planning loop</div>
+          <div class="card-pills"><span class="pill teal">Agentic</span><span class="pill">15 pts</span><span class="pill">~45 min</span></div>
+        </div>
+      </div>
+      <div class="card-body">
+        This is the heart of the system — the part that makes it agentic rather than just a fancy form. When an agent goes offline, the system should notice, figure out which orders are affected, and queue reassignment suggestions automatically. Nobody clicks a button. It just happens.<br><br>
+        Concretely: when <code>PATCH /agents/{id}/status</code> sets an agent to <code>OFFLINE</code>, a background process identifies all orders currently assigned to that agent, runs the active routing strategy on each one, and creates a <code>ReassignmentSuggestion</code> with <code>triggerReason = AGENT_OFFLINE</code> for each.<br><br>
+        A few things to get right:
+        <ul>
+          <li>The PATCH endpoint returns immediately — re-planning is fully async and never blocks the response</li>
+          <li>Suggestions surface in the UI on the next poll — ops doesn't need to do anything to see them</li>
+          <li>If a <code>PENDING</code> suggestion with <code>triggerReason = AGENT_OFFLINE</code> already exists for an order, skip creating another one — the same agent flipping offline twice shouldn't produce duplicates</li>
+          <li>If the AI strategy fails during async re-planning, fall back to rule-based and surface the suggestion anyway — a silent drop is worse than a rule-based recommendation</li>
+        </ul>
+        <div class="callout info">
+          <div class="callout-label">The loop in plain terms</div>
+          Observe (agent goes offline) → reason (which orders are now stranded?) → act (queue suggestions) → checkpoint (ops approves). That last step is important — the system queues suggestions, it doesn't auto-assign. Ops makes the final call, and that's intentional. See the Agentic Layer tab for the deeper design questions this raises.
+        </div>
+        <div class="callout warn">
+          <div class="callout-label">Wiring suggestion</div>
+          Spring's <code>@EventListener</code> with <code>@Async</code>, or a domain event via <code>ApplicationEventPublisher</code>, are clean ways to decouple the status update from the re-planning. A scheduled poller isn't quite right here — the loop should fire because something changed, not because a timer ticked. Whichever approach you take, it's worth an ADR entry.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-tag">T-5</div>
+        <div>
+          <div class="card-title">Ops interface</div>
+          <div class="card-pills"><span class="pill">React 18 or Angular 17</span><span class="pill">12 pts floor · +8 pts ceiling</span><span class="pill">~40 min</span></div>
+        </div>
+      </div>
+      <div class="card-body">
+        Build the interface an ops person would open when they get a reassignment alert. It doesn't need to be beautiful — it needs to be usable and it needs to show the agentic loop working end-to-end. Build it in React 18 or Angular 17 — your choice, documented in the ADR.<br><br>
+        <strong>The floor — what everyone should ship:</strong>
+        <ul>
+          <li>A list of orders in <code>REASSIGNMENT_PENDING</code> state, with the current suggestion shown inline — recommended agent, confidence score, and the AI's reasoning verbatim</li>
+          <li>Accept and Reject buttons wired to <code>PATCH /suggestions/{id}</code></li>
+          <li>A visual badge distinguishing agentic re-plans (<code>triggerReason = AGENT_OFFLINE</code>) from manually requested suggestions — this is what makes the loop visible</li>
+          <li>An agent list showing current status — AVAILABLE, BUSY, OFFLINE — clearly differentiated</li>
+          <li>Polling or a manual refresh button so suggestions appear without a page reload</li>
+          <li>Loading states and sensible error handling — these aren't extras, they're just good engineering</li>
+        </ul>
+        <strong>The ceiling — if you have time and want to go further:</strong>
+        <ul>
+          <li>Full dispatch board showing all orders across all statuses</li>
+          <li>SLA countdown per order with green / amber / red colour coding</li>
+          <li>Agent load visualisation — orders carried vs capacity</li>
+          <li>Zone-aware roster showing current zone per agent</li>
+        </ul>
+        <div class="callout info">
+          <div class="callout-label">On priorities</div>
+          This is primarily a backend and systems design screen. The UI's job is to show the system working — especially the re-plan badge appearing after an agent goes offline. If you're short on time, a clean functional floor beats an ambitious ceiling that cost you something in the backend. Document your call in the ADR.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-tag">T-6</div>
+        <div>
+          <div class="card-title">ADR + live walkthrough</div>
+          <div class="card-pills"><span class="pill">Architecture ownership</span><span class="pill">20 pts</span></div>
+        </div>
+      </div>
+      <div class="card-body">
+        The ADR is your chance to show the thinking behind the code — not what you built, but why, what you considered, and what you consciously left for later.<br><br>
+        Aim for four solid entries, each following: <strong>Context → Options considered → Decision → Tradeoffs accepted</strong>. The four areas we'd love you to cover:
+        <ul>
+          <li>Where does routing logic live, and why there?</li>
+          <li>How does strategy switchability work, and what were the alternatives?</li>
+          <li>How does the system handle an unavailable LLM?</li>
+          <li>How is the agentic loop triggered and kept off the request path?</li>
+        </ul>
+        Two entries that tend to carry a lot of weight:
+        <ul>
+          <li><strong>Extensibility</strong> — pick one item from the sprint 2/3 roadmap and point to the extension seam in your actual code. Saying "it's extensible" is nice; showing where is much better.</li>
+          <li><strong>Deliberate exclusions</strong> — what did you choose not to build, and why? A priority rationale lands differently than a time excuse. "I deferred the full dispatch board because the agentic loop is a correctness requirement and the board is a visibility enhancement" is a decision.</li>
+        </ul>
+        The walkthrough is a conversation — we'll trace an order through the system together, and then follow what happens when the assigned agent goes offline. Come ready to talk through the code, not recite it.
+        <div class="callout note">
+          <div class="callout-label">One piece of practical advice</div>
+          Write each ADR entry right after making the corresponding decision, not at the end of the session when you're tired and the clock is running out. The reasoning is freshest in the moment, and it shows.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- ══ ADR GUIDE ══ -->
+  <div class="panel" id="panel-adr">
+
+    <div class="prose" style="margin-bottom:24px">
+      The ADR — Architecture Decision Record — is one of the most important things you'll submit. It's not documentation written after the fact. It's a record of the thinking that shaped your code — captured in the moment, entry by entry, as you make each call. This tab explains the format, shows you a worked example, and lists the five decisions you need to cover.
+    </div>
+
+    <div class="section-rule" style="margin-bottom:18px"><span class="section-rule-label">What an ADR is</span><div class="section-rule-line"></div></div>
+
+    <div class="prose" style="margin-bottom:24px">
+      An ADR is a short document that records a single architectural decision. Not a summary of everything you built — just one decision per entry. The goal is to capture enough context that someone reading it six months later (or a reviewer reading it in the walkthrough) understands not just <em>what</em> you chose but <em>why</em>, and what you accepted by making that choice.<br><br>
+      The format is deliberately simple: four fields, each a short paragraph. You don't need headers, diagrams, or lengthy prose. A good ADR entry takes five to ten minutes to write well — which is why the best approach is to write each one right after making the corresponding decision, not at the end when the session is winding down.
+    </div>
+
+    <div class="section-rule" style="margin-bottom:18px"><span class="section-rule-label">The format</span><div class="section-rule-line"></div></div>
+
+    <div style="background:white;border:1px solid var(--rule2);border-radius:4px;padding:22px 24px;margin-bottom:24px">
+      <div style="display:grid;grid-template-columns:90px 1fr;gap:0;font-size:13px">
+
+        <div style="font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:0.14em;color:var(--teal);padding:14px 16px 14px 0;border-bottom:1px solid var(--rule);font-weight:500">Context</div>
+        <div style="color:var(--ink2);line-height:1.75;padding:14px 0;border-bottom:1px solid var(--rule)">What is the situation that requires a decision? What problem are you solving? What constraints are you working within? Keep this to two or three sentences — enough for someone unfamiliar with the codebase to understand why this decision needed to be made at all.</div>
+
+        <div style="font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:0.14em;color:var(--teal);padding:14px 16px 14px 0;border-bottom:1px solid var(--rule);font-weight:500">Options</div>
+        <div style="color:var(--ink2);line-height:1.75;padding:14px 0;border-bottom:1px solid var(--rule)">What approaches did you consider? List at least two — even if one was clearly better, naming the alternatives shows you thought it through rather than defaulting to the first thing that came to mind. A single sentence per option is enough.</div>
+
+        <div style="font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:0.14em;color:var(--teal);padding:14px 16px 14px 0;border-bottom:1px solid var(--rule);font-weight:500">Decision</div>
+        <div style="color:var(--ink2);line-height:1.75;padding:14px 0;border-bottom:1px solid var(--rule)">What did you choose and why? This is the heart of the entry. The reason should connect to something meaningful — testability, extensibility, simplicity, the sprint 2 roadmap — not just personal preference.</div>
+
+        <div style="font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:0.14em;color:var(--teal);padding:14px 16px 14px 0;font-weight:500">Tradeoffs</div>
+        <div style="color:var(--ink2);line-height:1.75;padding:14px 0">What did you give up or accept by making this choice? Every decision has a cost — naming it honestly is a sign of engineering maturity. If you can't name a tradeoff, you probably haven't thought the decision through fully.</div>
+
+      </div>
+    </div>
+
+    <div class="section-rule" style="margin-bottom:18px"><span class="section-rule-label">A worked example</span><div class="section-rule-line"></div></div>
+
+    <div style="margin-bottom:8px;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:0.14em;color:var(--ink3)">Example — ADR-2: How is the routing strategy made switchable at runtime?</div>
+
+    <div style="background:white;border:1px solid var(--rule2);border-left:3px solid var(--teal);border-radius:0 4px 4px 0;padding:20px 24px;margin-bottom:24px;font-size:13px;color:var(--ink2);line-height:1.85">
+
+      <div style="margin-bottom:16px">
+        <div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:0.14em;color:var(--teal);margin-bottom:5px">Context</div>
+        The routing engine supports multiple strategies — a rule-based strategy and an AI strategy — and the active strategy needs to be switchable at runtime without a restart. The same routing contract is called from two places: an HTTP endpoint for on-demand suggestions and an async event handler in the agentic re-planning loop. Sprint 2 will introduce a third strategy (<code>ZoneAffinityStrategy</code>), so the wiring mechanism needs to accommodate new strategies without changing existing code.
+      </div>
+
+      <div style="margin-bottom:16px">
+        <div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:0.14em;color:var(--teal);margin-bottom:5px">Options considered</div>
+        <strong style="color:var(--ink)">(a) Spring <code>@Qualifier</code> with a config property</strong> — straightforward but requires a restart to switch and doesn't scale cleanly to dynamic registration.<br>
+        <strong style="color:var(--ink)">(b) Auto-wired <code>Map&lt;String, RoutingStrategy&gt;</code> bean map</strong> — Spring populates the map automatically; the active strategy is selected at call time by reading a config property. Adding a new strategy means implementing the interface and registering the bean — no existing code changes.<br>
+        <strong style="color:var(--ink)">(c) Manual factory with a switch statement</strong> — explicit but requires modifying the factory every time a new strategy is added.
+      </div>
+
+      <div style="margin-bottom:16px">
+        <div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:0.14em;color:var(--teal);margin-bottom:5px">Decision</div>
+        Chose option (b) — auto-wired bean map keyed by strategy name. The active strategy name is read from <code>routing.strategy</code> in <code>application.properties</code>, which can be changed via environment variable without a restart. The map is injected into both the HTTP endpoint handler and the agentic event listener, so both callers get the same active strategy without additional wiring. Adding <code>ZoneAffinityStrategy</code> in sprint 2 requires implementing the interface and annotating the bean — no changes to selection logic.
+      </div>
+
+      <div>
+        <div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:0.14em;color:var(--teal);margin-bottom:5px">Tradeoffs accepted</div>
+        The bean map approach is slightly less explicit than a factory — a reader needs to know that Spring auto-populates the map by bean name. This is a minor readability cost. We also lose compile-time guarantees that the configured strategy name actually exists; if <code>routing.strategy</code> is misconfigured, the failure is at runtime. Added a startup validation check to surface this immediately rather than on the first request.
+      </div>
+
+    </div>
+
+    <div class="section-rule" style="margin-bottom:18px"><span class="section-rule-label">The five decisions to cover</span><div class="section-rule-line"></div></div>
+
+    <div class="prose" style="margin-bottom:16px">
+      Your <code>ADR.md</code> needs at least four solid entries. The five decisions below are the ones we'd expect to see — the first four are non-negotiable, the fifth is the one that tends to carry the most weight in the walkthrough.
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px">
+
+      <div style="background:white;border:1px solid var(--rule2);border-radius:4px;padding:16px 20px;display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:start">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--accent);font-weight:500;padding-top:2px">1</div>
+        <div>
+          <div style="font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:4px">Where does routing logic live?</div>
+          <div style="font-size:12.5px;color:var(--ink2);line-height:1.75">Name the pattern — Service Layer, Domain Model, Application Service. Explain what boundary it enforces and why you didn't put the logic somewhere else. A service class that quietly grows to hold routing logic, event publishing, and persistence all at once is a design smell worth naming and avoiding.</div>
+        </div>
+      </div>
+
+      <div style="background:white;border:1px solid var(--rule2);border-radius:4px;padding:16px 20px;display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:start">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--accent);font-weight:500;padding-top:2px">2</div>
+        <div>
+          <div style="font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:4px">How does runtime strategy switching work?</div>
+          <div style="font-size:12.5px;color:var(--ink2);line-height:1.75">The worked example above covers this one. Your version should reflect your actual implementation — not the example. If you chose a different approach, document why. The key things to address: how it works from both call paths (HTTP and async), and how sprint 2's third strategy plugs in.</div>
+        </div>
+      </div>
+
+      <div style="background:white;border:1px solid var(--rule2);border-radius:4px;padding:16px 20px;display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:start">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--accent);font-weight:500;padding-top:2px">3</div>
+        <div>
+          <div style="font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:4px">How does the system stay healthy when the LLM is unavailable?</div>
+          <div style="font-size:12.5px;color:var(--ink2);line-height:1.75">LLM calls fail in several distinct ways — timeouts, malformed JSON, hallucinated agent IDs, quota exhaustion. Define how you handle each case and what the system does in response. The async re-plan path needs special attention: a failed AI call there should still produce a rule-based suggestion, not a silent drop.</div>
+        </div>
+      </div>
+
+      <div style="background:white;border:1px solid var(--rule2);border-radius:4px;padding:16px 20px;display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:start">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--accent);font-weight:500;padding-top:2px">4</div>
+        <div>
+          <div style="font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:4px">How is the agentic loop triggered and kept off the request path?</div>
+          <div style="font-size:12.5px;color:var(--ink2);line-height:1.75">The <code>PATCH /agents/{id}/status</code> endpoint must return quickly. Document the mechanism you chose for decoupling the re-planning — <code>@EventListener</code>, <code>ApplicationEventPublisher</code>, thread pool, or something else. Explain why you chose it over the alternatives, and address what happens when the async re-plan itself fails.</div>
+        </div>
+      </div>
+
+      <div style="background:white;border:1px solid rgba(26,107,90,0.25);border-radius:4px;padding:16px 20px;display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:start">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--teal);font-weight:500;padding-top:2px">5</div>
+        <div>
+          <div style="font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:4px">What did you design to extend, and what did you deliberately leave for later?</div>
+          <div style="font-size:12.5px;color:var(--ink2);line-height:1.75">Two parts. First — pick one sprint 2 or sprint 3 feature and point to the extension seam in your actual code. The interface, field, or abstraction that makes it addable without restructuring what's already there. Second — name at least one thing you chose not to build, and frame it as a priority call. "I deferred X because Y is a correctness requirement and X is an enhancement" is a decision. "Ran out of time" isn't.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="callout info">
+      <div class="callout-label">A practical tip</div>
+      Keep your <code>ADR.md</code> open in a split pane throughout the session. Write the entry for each decision as you make it — five minutes now while the reasoning is fresh is worth far more than twenty minutes at the end trying to reconstruct it. The walkthrough will test whether the ADR reflects your actual thinking or was assembled retrospectively. It tends to be obvious which one it is.
+    </div>
+
+  </div>
+
+
+  <!-- ══ EXTENSIONS ══ -->
+  <div class="panel" id="panel-extensions">
+    <div class="prose" style="margin-bottom:20px">
+      Here's what's on the roadmap for sprints 2 and 3. You're not building any of this today — but it's worth having in your head when you're making domain model and interface decisions. The goal is that when these features arrive, adding them feels natural rather than surgical.
+    </div>
+    <div class="roadmap">
+      <div class="roadmap-card sprint2">
+        <div class="roadmap-sprint sprint2">Sprint 2 — Zone &amp; Capacity</div>
+        <ul class="roadmap-items">
+          <li>Agents carry a <code>currentZone</code> — routing starts preferring agents already near the pickup zone</li>
+          <li><code>ZoneAffinityStrategy</code> becomes a third routing option alongside rule-based and AI</li>
+          <li>Agents get a <code>maxCapacity</code> — routing respects it; no agent goes over their limit</li>
+          <li>Orders carry a <code>weightClass</code> (<code>LIGHT</code> / <code>HEAVY</code>) — heavy orders go to capable agents only</li>
+          <li>Orders get a <code>pickupZone</code> and <code>dropoffZone</code> — used by zone-aware strategies</li>
+        </ul>
+      </div>
+      <div class="roadmap-card sprint3">
+        <div class="roadmap-sprint sprint3">Sprint 3 — Proactive &amp; Full Dispatch</div>
+        <ul class="roadmap-items">
+          <li>SLA deadlines on orders — the agentic loop fires proactively when an order approaches breach, not just on agent OFFLINE events</li>
+          <li>Priority tiers — premium orders jump the queue regardless of active strategy</li>
+          <li>Full dispatch board — all orders across all statuses, real-time agent load, zone map</li>
+          <li>Traffic-aware routing — AI strategy calls an external data source as a tool before recommending</li>
+          <li>Multi-step re-plan — AI considers downstream queue pressure across all agents, not just the immediate order</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout info" style="margin-top:16px">
+      <div class="callout-label">How to think about this</div>
+      Three places where today's decisions can either welcome or resist these extensions: the domain model (does adding <code>currentZone</code> need a migration or just an activated placeholder?), the routing interface (does a third strategy mean implementing a contract, or modifying existing ones?), and the agentic loop (is the trigger mechanism general enough to handle an SLA event as naturally as an OFFLINE event?). Your ADR extensibility entry should address at least one of these.
+    </div>
+  </div>
+
+
+  <!-- ══ DESIGN DEPTH (agentic + arch combined) ══ -->
+  <div class="panel" id="panel-depth">
+
+    <div class="section-rule" style="margin-bottom:18px"><span class="section-rule-label">Agentic loop — questions worth thinking through</span><div class="section-rule-line"></div></div>
+    <div class="prose" style="margin-bottom:16px">
+      T-4 is worth thinking through carefully before you build it. These are the questions your implementation should have good answers to — and ones we'll explore together in the walkthrough.
+    </div>
+
+    <div class="adr-card teal">
+      <div class="adr-q"><span class="teal">AGT-1</span> What actually makes this agentic rather than just automated?</div>
+      <div class="adr-detail">A scheduled job that checks every few minutes for offline agents is automated. What makes a system agentic is the loop: observe a specific state change, reason about what it means, act within defined boundaries, then wait for a human to make the irreversible call. In this system — the trigger is the OFFLINE event (not a timer), the reasoning is about which specific orders are stranded (not all orders), the action is queuing suggestions (not assigning), and the checkpoint is ops approval. Keep all four parts of that loop in mind as you build T-4.</div>
+    </div>
+
+    <div class="adr-card teal">
+      <div class="adr-q"><span class="teal">AGT-2</span> Where's the human checkpoint, and when might you remove it?</div>
+      <div class="adr-detail">The checkpoint is the suggestion queue — the system proposes, ops disposes. Auto-assigning on re-plan isn't "more complete," it's a different system where the human is out of the loop. Your ADR should name the checkpoint and — this is the more interesting part — say under what conditions you'd be comfortable removing it. High confidence score? Imminent SLA breach? That reasoning shows you're thinking about the system's evolution, not just its current sprint.</div>
+    </div>
+
+    <div class="adr-card teal">
+      <div class="adr-q"><span class="teal">AGT-3</span> Why do the two prompts need to be different?</div>
+      <div class="adr-detail">A first assignment and a recovery from a failure are genuinely different situations. The model needs to know it's in recovery mode — which agent dropped out, how many orders are now stranded, and that previous assignments to that agent are void. Handing the model the same context as a first assignment with a small note appended means it isn't getting what it needs to reason differently. Think of the re-plan prompt as a situation report, not an updated order form.</div>
+    </div>
+
+    <div class="adr-card teal">
+      <div class="adr-q"><span class="teal">AGT-4</span> What does idempotency mean here and why does it matter?</div>
+      <div class="adr-detail">If the same agent goes offline twice quickly, or two agents go offline at once affecting overlapping orders, a naive implementation fires duplicate suggestions. Before creating a new re-plan suggestion for an order, check whether a <code>PENDING</code> suggestion with <code>triggerReason = AGENT_OFFLINE</code> already exists for it — if so, skip it. This is a correctness concern, not a performance one, and it's worth showing in your repository query and mentioning in the ADR.</div>
+    </div>
+
+    <div class="adr-card teal">
+      <div class="adr-q"><span class="teal">AGT-5</span> Where does your design support the sprint 3 proactive loop?</div>
+      <div class="adr-detail">Sprint 3 introduces SLA-breach detection — the loop fires not just on OFFLINE events but when an order is getting close to its deadline. We'll ask about this in the walkthrough, but you're not expected to build it — just be able to point to where it would plug in. Is your event mechanism general enough to accept a new trigger type? Is your routing interface as comfortable being called from a scheduled monitor as from an event handler? That's the kind of forward thinking we enjoy exploring together.</div>
+    </div>
+
+    <div class="section-rule" style="margin: 32px 0 18px"><span class="section-rule-label">Architecture decisions — ADR guide</span><div class="section-rule-line"></div></div>
+    <div class="prose" style="margin-bottom:16px">
+      These are the architectural questions your ADR should address and that we'll dig into together in the walkthrough. There's no single right answer — a well-reasoned choice with honestly acknowledged tradeoffs is what we're looking for.
+    </div>
+
+    <div class="adr-card">
+      <div class="adr-q"><span>ADR-1</span> Where does routing logic live?</div>
+      <div class="adr-detail">Controller, service, domain object, or a dedicated component? Name the pattern — Service Layer, Domain Model, Application Service — explain what it encapsulates, and say why you didn't put it somewhere else. A service that quietly accumulates routing logic, fallback logic, event publishing, and persistence is a design smell worth naming and avoiding.</div>
+    </div>
+
+    <div class="adr-card">
+      <div class="adr-q"><span>ADR-2</span> How does runtime strategy switching work?</div>
+      <div class="adr-detail">Spring <code>@Qualifier</code>, an auto-wired <code>Map&lt;String, RoutingStrategy&gt;</code> bean map, a manual factory, or a Strategy + Registry — each has different tradeoffs for testability, thread-safety, and extensibility. Worth keeping in mind that the strategy is called from both an HTTP endpoint and an async event handler, and that sprint 2 adds a third. How many files does adding it touch with your current approach?</div>
+    </div>
+
+    <div class="adr-card">
+      <div class="adr-q"><span>ADR-3</span> How does the system stay resilient when the LLM is unavailable?</div>
+      <div class="adr-detail">LLM calls fail in interesting ways — timeouts, quota exhaustion, malformed JSON, hallucinated agent identifiers. Worth defining how you handle each and what the system does in response. In the async re-plan context especially, a failed AI call should still produce a rule-based suggestion rather than silently dropping the re-plan. The reassignment flow should stay healthy regardless of what the LLM is doing.</div>
+    </div>
+
+    <div class="adr-card teal">
+      <div class="adr-q"><span class="teal">ADR-4</span> How is the agentic loop triggered and kept off the request path?</div>
+      <div class="adr-detail">The <code>PATCH /agents/{id}/status</code> endpoint needs to return quickly — re-planning happens somewhere else. Spring's <code>@EventListener</code> + <code>@Async</code>, a domain event via <code>ApplicationEventPublisher</code>, or a dedicated thread pool executor all work, each with different characteristics around error propagation and transaction boundaries. Whichever you pick, it's worth thinking through what happens when the async re-plan itself fails — does that failure get logged, retried, surfaced to ops?</div>
+    </div>
+
+    <div class="adr-card teal">
+      <div class="adr-q"><span class="teal">ADR-5</span> What did you design to extend, and what did you save for later?</div>
+      <div class="adr-detail">Two parts to this one. First — pick a sprint 2 or sprint 3 feature and point to the extension seam in your code. The interface, the field, the abstraction that makes it addable without restructuring what's already there. Second — name at least one thing you chose not to build. Frame it as a priority call: "I deferred X because Y is a correctness requirement and X is an enhancement" lands differently than "didn't have time."</div>
+    </div>
+
+  </div>
+
+
+  <!-- ══ SCORING & TIMELINE (combined) ══ -->
+  <div class="panel" id="panel-scoring">
+
+    <div class="section-rule" style="margin-bottom:18px"><span class="section-rule-label">Scoring</span><div class="section-rule-line"></div></div>
+    <div class="prose" style="margin-bottom:20px">
+      Here's how the session is scored. The rubric is here so you know where to invest your time and energy — not to add pressure. The areas that carry the most weight are the routing engine, AI integration, and the ADR and walkthrough, so keep those in focus even if other things get tight.
+    </div>
+
+    <div class="score-strip">
+      <div class="score-cell"><div class="score-num accent">20</div><div class="score-label">Domain model &amp; API</div></div>
+      <div class="score-cell"><div class="score-num accent">25</div><div class="score-label">Routing engine</div></div>
+      <div class="score-cell"><div class="score-num accent">25</div><div class="score-label">AI integration</div></div>
+      <div class="score-cell"><div class="score-num teal">15</div><div class="score-label">Agentic loop</div></div>
+      <div class="score-cell"><div class="score-num accent">12</div><div class="score-label">Ops interface floor</div></div>
+      <div class="score-cell"><div class="score-num accent">20</div><div class="score-label">ADR + walkthrough</div></div>
+      <div class="score-cell"><div class="score-num green">+8+5</div><div class="score-label">UI ceiling · SSE bonus</div></div>
+    </div>
+
+    <div class="rubric">
+      <table>
+        <thead><tr><th>Area</th><th>What we're looking for</th><th>Pts</th></tr></thead>
+        <tbody>
+          <tr><td>Entity design</td><td>Clean state machines, extension points visible for sprint 2 fields, model feels purposeful rather than accidental</td><td>8</td></tr>
+          <tr><td>API correctness</td><td>Right HTTP verbs and status codes, validation in the right place, errors come back in a structured shape</td><td>7</td></tr>
+          <tr><td>Persistence</td><td>JPA relationships correct, no obvious N+1 queries, the app runs from the README in under 5 minutes</td><td>5</td></tr>
+          <tr><td>Routing contract</td><td>Interface defined before implementations; works cleanly from both HTTP and async call paths; adding a third strategy touches minimal existing code</td><td>10</td></tr>
+          <tr><td>Runtime switchability</td><td>Strategy changes via config without a restart; mechanism makes sense from both call sites</td><td>8</td></tr>
+          <tr><td>Pattern justification</td><td>ADR entry names the pattern, defends it against alternatives, and connects it to the sprint 2 extensibility picture</td><td>7</td></tr>
+          <tr><td>Initial prompt quality</td><td>Gives the model what it needs — structured order context, full agent roster snapshot, typed output schema requested</td><td>8</td></tr>
+          <tr><td>Re-plan prompt quality</td><td>Genuinely different from the initial prompt; includes failure context — agent offline, orders affected, recovery framing</td><td>8</td></tr>
+          <tr><td>AI resilience</td><td>All failure modes handled explicitly; agent IDs validated before persisting; async re-plan failures produce a rule-based fallback rather than a silent drop</td><td>9</td></tr>
+          <tr><td>Agentic loop — trigger</td><td>Event-driven and non-blocking; fires on OFFLINE; idempotent on repeated triggers</td><td>7</td></tr>
+          <tr><td>Agentic loop — checkpoint</td><td>System queues suggestions and doesn't auto-assign; human checkpoint is clear in the code and named in the ADR</td><td>8</td></tr>
+          <tr><td>Ops interface floor</td><td>Reassignment list with inline AI reasoning; accept/reject controls wired up; re-plan badge visible; agent list with status; polling or refresh; loading and error states present</td><td>12</td></tr>
+          <tr><td>ADR quality</td><td>Four solid entries with context / options / decision / tradeoffs; extensibility entry points to a specific seam in the code; exclusion entry frames a priority decision</td><td>10</td></tr>
+          <tr><td>Live walkthrough</td><td>Can trace the full order path and the agent-offline re-plan path in code; conversations about design choices feel natural and considered</td><td>10</td></tr>
+          <tr><td>UI ceiling (optional)</td><td>Full dispatch board, SLA countdown, agent load, zone roster — scored proportionally to what's present and functional</td><td>+8</td></tr>
+          <tr><td>SSE streaming (bonus)</td><td>Token-by-token reasoning stream works end-to-end in the UI</td><td>+5</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-rule" style="margin: 32px 0 18px"><span class="section-rule-label">Suggested timeline</span><div class="section-rule-line"></div></div>
+    <div class="prose" style="margin-bottom:20px">
+      Six phases across five hours — treat these as rough checkpoints rather than a strict schedule. If you're meaningfully ahead or behind at any boundary, it's worth a moment to replan rather than just pushing forward.
+    </div>
+
+    <div class="phases">
+
+      <div class="phase">
+        <div class="phase-time">Phase 1<span>~15–20 min</span></div>
+        <div>
+          <div class="phase-name">Read, sketch, decide</div>
+          <div class="phase-detail">Read the full brief and the extensions roadmap. Sketch your architecture on paper before touching the IDE — entity relationships, routing pattern, how the agentic loop fires. Decide your frontend framework and your UI scope. Open your <code>ADR.md</code> now and write the first entry before the first line of code. The decisions you make here are the ones you'll explain in the walkthrough.</div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-time">Phase 2<span>~60–75 min</span></div>
+        <div>
+          <div class="phase-name">Domain model, API, routing engine</div>
+          <div class="phase-detail">Build the three entities with their state machines and JPA mappings. Wire the four endpoints and smoke-test them before moving on. Design the routing contract — interface first, then the rule-based implementation, then the runtime switchability mechanism. Write ADR entries for routing pattern and strategy switchability while they're fresh. Addendum A is ready for seed data.</div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-time">Phase 3<span>~55–65 min</span></div>
+        <div>
+          <div class="phase-name">AI strategy and both prompts</div>
+          <div class="phase-detail">Write both prompts in plain text before touching code — initial suggestion and re-plan are genuinely different documents. Then implement the AI strategy, using Addendum B for the HTTP layer. Build all fallback paths before testing the happy path. Test deliberately: break the LLM call and confirm the fallback works correctly. Write the AI resilience ADR entry.</div>
+        </div>
+      </div>
+
+      <div class="phase teal">
+        <div class="phase-time">Phase 4<span>~45–55 min</span></div>
+        <div>
+          <div class="phase-name">Agentic re-planning loop</div>
+          <div class="phase-detail">Wire the event listener or application event. Implement the async re-plan — identify affected orders, run routing, persist suggestions with <code>triggerReason = AGENT_OFFLINE</code>. Test by PATCHing an agent to OFFLINE and watching suggestions appear. Test idempotency by triggering the same agent twice. Confirm the PATCH endpoint returns immediately without waiting for re-planning to finish. Write ADR-4.</div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-time">Phase 5<span>~40–50 min</span></div>
+        <div>
+          <div class="phase-name">Ops interface</div>
+          <div class="phase-detail">Scaffold your React or Angular project and build the floor: reassignment list with inline AI reasoning, accept/reject controls, re-plan badge, agent list, polling or manual refresh, loading states. Test the full end-to-end path — create order, assign agent, PATCH agent to OFFLINE, watch re-plan suggestion appear, accept it. If that path works cleanly and time remains, extend toward the UI ceiling.</div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-time">Phase 6<span>~30–40 min</span></div>
+        <div>
+          <div class="phase-name">ADR, demo, submission</div>
+          <div class="phase-detail">Complete any remaining ADR entries — the extensibility and deliberate exclusions entries especially. Record your 5-minute demo showing the re-plan path end-to-end. Write a README that gets the app running in under 5 minutes. Push to GitHub, make the repo public, and submit the link before the session ends.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="callout warn" style="margin-top:16px">
+      <div class="callout-label">If you find yourself running behind</div>
+      Drop the SSE bonus first — it's additive and costs real time. Then drop the UI ceiling and focus on a clean, working floor. If the frontend is still taking too long, simplify it aggressively — a minimal but functional interface that shows the re-plan badge is more valuable than an elaborate one that cost you the agentic loop or the ADR. Those two are worth protecting to the end.
+    </div>
+
+  </div>
+
+
+  <!-- ══ TECH SPEC ══ -->
+  <div class="panel" id="panel-spec">
+    <div class="spec-grid">
+      <div class="spec-card">
+        <div class="spec-title accent">Backend</div>
+        <div class="spec-body">
+          Java 17+<br>
+          Spring Boot 3.x<br>
+          Maven or Gradle<br>
+          Spring Data JPA<br>
+          Spring Validation<br>
+          Spring Actuator<br>
+          H2 (dev) or Postgres<br>
+          CORS: <code>localhost:5173</code> (React)<br>
+          CORS: <code>localhost:4200</code> (Angular)
+        </div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-title amber">LLM — choose one</div>
+        <div class="spec-body">
+          <strong>Gemini 1.5 Flash</strong><br>
+          aistudio.google.com · free<br><br>
+          <strong>Groq + Llama 3.1 8B</strong><br>
+          console.groq.com · free · fast<br><br>
+          <strong>Ollama local</strong><br>
+          ollama.com · no key · 8 GB+ RAM<br><br>
+          Expected LLM output:<br>
+          <code>{"agentId":"...","confidence":0.85,"reasoning":"..."}</code>
+        </div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-title teal">Frontend — choose one</div>
+        <div class="spec-body">
+          <strong>React 18</strong><br>
+          Vite · <code>npm create vite@latest</code><br>
+          Dev server: <code>localhost:5173</code><br><br>
+          <strong>Angular 17</strong><br>
+          Angular CLI · standalone API<br>
+          Dev server: <code>localhost:4200</code><br><br>
+          Document your choice in the ADR.<br>
+          UI ceiling scoring available with either.
+        </div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-title">Submission</div>
+        <div class="spec-body">
+          Public GitHub repo<br>
+          <code>/backend</code> and <code>/frontend</code> folders<br>
+          <code>README.md</code> — setup under 5 min<br>
+          <code>ADR.md</code> — not optional<br>
+          5-min demo video (Loom / YouTube)<br>
+          Demo must show the re-plan path<br>
+          Submit via recruiter form
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══ ADDENDA — always visible, below tab panels ══ -->
+  <div id="addenda" style="margin-top:48px">
+
+    <div style="display:flex;align-items:center;gap:0;margin-bottom:28px">
+      <div style="flex:1;height:1px;background:var(--rule2)"></div>
+      <div style="
+        font-family:var(--mono);font-size:10px;letter-spacing:0.18em;
+        text-transform:uppercase;color:var(--bg);background:var(--ink);
+        padding:5px 16px;border-radius:2px;margin:0 16px;white-space:nowrap
+      ">Reference · Always available</div>
+      <div style="flex:1;height:1px;background:var(--rule2)"></div>
+    </div>
+
+    <div style="font-size:13.5px;color:var(--ink2);line-height:1.8;margin-bottom:24px">
+      Two addenda provided to save you setup time on things that don't carry evaluation signal. They're here at the bottom of the brief so you can refer back to them at any point during the session without navigating away from your current tab. Use them as-is, adapt them to your schema and package structure, or ignore them — they don't constrain any of your design decisions.
+    </div>
+
+    <div class="addendum-header">
+      <span class="addendum-title">Addendum A — Seed Script</span>
+      <span class="addendum-tag">SQL · H2 and Postgres compatible</span>
+    </div>
+    <div class="code-block"><pre><span class="cm">-- ─────────────────────────────────────────────────────────
+-- Hackathon · Seed Data
+-- H2: place in src/main/resources/data.sql
+-- Postgres: run manually or via Flyway
+-- Adapt table/column names to match your schema
+-- ─────────────────────────────────────────────────────────</span>
+
+<span class="cm">-- 5 agents: mix of AVAILABLE and BUSY</span>
+<span class="kw">INSERT INTO</span> agents (id, name, active_order_count, status) <span class="kw">VALUES</span>
+  (<span class="st">'AGT-001'</span>, <span class="st">'Priya Sharma'</span>,  <span class="nu">2</span>, <span class="st">'BUSY'</span>),
+  (<span class="st">'AGT-002'</span>, <span class="st">'Rahul Verma'</span>,   <span class="nu">0</span>, <span class="st">'AVAILABLE'</span>),
+  (<span class="st">'AGT-003'</span>, <span class="st">'Ananya Iyer'</span>,   <span class="nu">1</span>, <span class="st">'BUSY'</span>),
+  (<span class="st">'AGT-004'</span>, <span class="st">'Kiran Nair'</span>,    <span class="nu">0</span>, <span class="st">'AVAILABLE'</span>),
+  (<span class="st">'AGT-005'</span>, <span class="st">'Deepak Mehta'</span>,  <span class="nu">3</span>, <span class="st">'BUSY'</span>);
+
+<span class="cm">-- 8 orders: all ASSIGNED, spread across agents</span>
+<span class="kw">INSERT INTO</span> orders (id, description, assigned_agent_id, status, created_at) <span class="kw">VALUES</span>
+  (<span class="st">'ORD-001'</span>, <span class="st">'Electronics — Koramangala to Indiranagar'</span>, <span class="st">'AGT-001'</span>, <span class="st">'ASSIGNED'</span>, <span class="kw">NOW</span>()),
+  (<span class="st">'ORD-002'</span>, <span class="st">'Groceries — HSR Layout to BTM'</span>,          <span class="st">'AGT-001'</span>, <span class="st">'ASSIGNED'</span>, <span class="kw">NOW</span>()),
+  (<span class="st">'ORD-003'</span>, <span class="st">'Pharma — Whitefield to Marathahalli'</span>,      <span class="st">'AGT-003'</span>, <span class="st">'ASSIGNED'</span>, <span class="kw">NOW</span>()),
+  (<span class="st">'ORD-004'</span>, <span class="st">'Documents — MG Road to Jayanagar'</span>,        <span class="st">'AGT-005'</span>, <span class="st">'ASSIGNED'</span>, <span class="kw">NOW</span>()),
+  (<span class="st">'ORD-005'</span>, <span class="st">'Food — Bellandur to Electronic City'</span>,      <span class="st">'AGT-005'</span>, <span class="st">'ASSIGNED'</span>, <span class="kw">NOW</span>()),
+  (<span class="st">'ORD-006'</span>, <span class="st">'Apparel — Malleshwaram to Rajajinagar'</span>,    <span class="st">'AGT-005'</span>, <span class="st">'ASSIGNED'</span>, <span class="kw">NOW</span>()),
+  (<span class="st">'ORD-007'</span>, <span class="st">'Books — Banashankari to JP Nagar'</span>,         <span class="st">'AGT-003'</span>, <span class="st">'ASSIGNED'</span>, <span class="kw">NOW</span>()),
+  (<span class="st">'ORD-008'</span>, <span class="st">'Hardware — Peenya to Yeshwanthpur'</span>,        <span class="st">'AGT-001'</span>, <span class="st">'ASSIGNED'</span>, <span class="kw">NOW</span>());</pre></div>
+
+    <div class="callout info" style="margin-bottom:28px">
+      <div class="callout-label">Adapting this to your schema</div>
+      Align table names, column names, and identifier format with your own schema. For H2, drop this in <code>src/main/resources/data.sql</code> and Spring Boot runs it automatically on startup. For Postgres, run it manually or wire it through Flyway.
+    </div>
+
+    <div class="addendum-header">
+      <span class="addendum-title">Addendum B — LLM Gateway Utility</span>
+      <span class="addendum-tag">Java · Gemini · Groq · Ollama</span>
+    </div>
+    <div class="code-block"><pre><span class="kw">package</span> com..ai;
+
+<span class="kw">import</span> org.springframework.beans.factory.annotation.Value;
+<span class="kw">import</span> org.springframework.stereotype.Component;
+<span class="kw">import</span> org.springframework.web.client.RestClient;
+<span class="kw">import</span> java.util.List;
+<span class="kw">import</span> java.util.Map;
+
+<span class="cm">/**
+ * Handles the provider-specific HTTP wire format for Gemini Flash,
+ * Groq, and Ollama. Returns the raw text content of the model's
+ * response as a String.
+ *
+ * What this handles: authentication headers, request body shape,
+ * and response unwrapping for all three supported providers.
+ *
+ * What remains yours: prompt construction, JSON parsing of the
+ * returned String, agent ID validation, fallback logic, and the
+ * distinction between your initial and re-plan calls.
+ *
+ * Configure in application.properties:
+ *   llm.provider  = gemini          # gemini | groq | ollama
+ *   llm.api-key   = ${LLM_API_KEY}  # not needed for ollama
+ *   llm.model     = gemini-1.5-flash
+ *   llm.base-url  = https://generativelanguage.googleapis.com
+ */</span>
+<span class="an">@Component</span>
+<span class="kw">public class</span> <span class="ty">LLMGateway</span> {
+
+    <span class="an">@Value</span>(<span class="st">"${llm.provider}"</span>)
+    <span class="kw">private</span> <span class="ty">String</span> provider;
+
+    <span class="an">@Value</span>(<span class="st">"${llm.api-key:}"</span>)
+    <span class="kw">private</span> <span class="ty">String</span> apiKey;
+
+    <span class="an">@Value</span>(<span class="st">"${llm.model}"</span>)
+    <span class="kw">private</span> <span class="ty">String</span> model;
+
+    <span class="an">@Value</span>(<span class="st">"${llm.base-url}"</span>)
+    <span class="kw">private</span> <span class="ty">String</span> baseUrl;
+
+    <span class="kw">private final</span> <span class="ty">RestClient</span> http = <span class="ty">RestClient</span>.create();
+
+    <span class="cm">/**
+     * Sends prompt to the configured LLM and returns the raw text
+     * response. Throws RuntimeException on HTTP error or unparseable
+     * response — caller is responsible for fallback handling.
+     */</span>
+    <span class="kw">public</span> <span class="ty">String</span> callLLM(<span class="ty">String</span> prompt) {
+        <span class="kw">return switch</span> (provider.toLowerCase()) {
+            <span class="kw">case</span> <span class="st">"gemini"</span> -> callGemini(prompt);
+            <span class="kw">case</span> <span class="st">"groq"</span>   -> callOpenAICompatible(prompt,
+                                 baseUrl + <span class="st">"/openai/v1/chat/completions"</span>);
+            <span class="kw">case</span> <span class="st">"ollama"</span> -> callOpenAICompatible(prompt,
+                                 baseUrl + <span class="st">"/v1/chat/completions"</span>);
+            <span class="kw">default</span>      -> <span class="kw">throw new</span> <span class="ty">IllegalStateException</span>(
+                                 <span class="st">"Unknown provider: "</span> + provider);
+        };
+    }
+
+    <span class="kw">private</span> <span class="ty">String</span> callGemini(<span class="ty">String</span> prompt) {
+        <span class="kw">var</span> url  = baseUrl
+            + <span class="st">"/v1beta/models/"</span> + model
+            + <span class="st">":generateContent?key="</span> + apiKey;
+        <span class="kw">var</span> body = <span class="ty">Map</span>.of(<span class="st">"contents"</span>, <span class="ty">List</span>.of(
+            <span class="ty">Map</span>.of(<span class="st">"parts"</span>, <span class="ty">List</span>.of(
+                <span class="ty">Map</span>.of(<span class="st">"text"</span>, prompt)))));
+
+        <span class="kw">var</span> resp = http.post().uri(url)
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .body(body).retrieve().body(<span class="ty">Map</span>.class);
+
+        <span class="kw">try</span> {
+            <span class="kw">var</span> candidates = (<span class="ty">List</span>&lt;?&gt;) resp.get(<span class="st">"candidates"</span>);
+            <span class="kw">var</span> content    = (<span class="ty">Map</span>&lt;?,?&gt;)((<span class="ty">Map</span>&lt;?,?&gt;) candidates.get(<span class="nu">0</span>)).get(<span class="st">"content"</span>);
+            <span class="kw">var</span> parts      = (<span class="ty">List</span>&lt;?&gt;) content.get(<span class="st">"parts"</span>);
+            <span class="kw">return</span> (<span class="ty">String</span>)((<span class="ty">Map</span>&lt;?,?&gt;) parts.get(<span class="nu">0</span>)).get(<span class="st">"text"</span>);
+        } <span class="kw">catch</span> (<span class="ty">Exception</span> e) {
+            <span class="kw">throw new</span> <span class="ty">RuntimeException</span>(<span class="st">"Gemini response parse failed"</span>, e);
+        }
+    }
+
+    <span class="kw">private</span> <span class="ty">String</span> callOpenAICompatible(<span class="ty">String</span> prompt, <span class="ty">String</span> url) {
+        <span class="kw">var</span> body = <span class="ty">Map</span>.of(
+            <span class="st">"model"</span>,    model,
+            <span class="st">"messages"</span>, <span class="ty">List</span>.of(<span class="ty">Map</span>.of(
+                <span class="st">"role"</span>,    <span class="st">"user"</span>,
+                <span class="st">"content"</span>, prompt)));
+
+        <span class="kw">var</span> resp = http.post().uri(url)
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .header(<span class="st">"Authorization"</span>, <span class="st">"Bearer "</span> + apiKey)
+            .body(body).retrieve().body(<span class="ty">Map</span>.class);
+
+        <span class="kw">try</span> {
+            <span class="kw">var</span> choices = (<span class="ty">List</span>&lt;?&gt;) resp.get(<span class="st">"choices"</span>);
+            <span class="kw">var</span> message = (<span class="ty">Map</span>&lt;?,?&gt;)((<span class="ty">Map</span>&lt;?,?&gt;) choices.get(<span class="nu">0</span>)).get(<span class="st">"message"</span>);
+            <span class="kw">return</span> (<span class="ty">String</span>) message.get(<span class="st">"content"</span>);
+        } <span class="kw">catch</span> (<span class="ty">Exception</span> e) {
+            <span class="kw">throw new</span> <span class="ty">RuntimeException</span>(<span class="st">"LLM response parse failed"</span>, e);
+        }
+    }
+}</pre></div>
+
+    <div class="callout info">
+      <div class="callout-label">Getting started with this</div>
+      Drop it into whichever package fits your structure — the package declaration is a placeholder. Set the four <code>application.properties</code> values, call <code>callLLM(yourPrompt)</code>, and you get back a raw String. Parsing it as JSON, validating the agent ID, and deciding what to do when it throws are all yours to design.
+    </div>
+    <div class="callout warn" style="margin-top:12px;margin-bottom:48px">
+      <div class="callout-label">Keep your API key out of the repo</div>
+      Store it as an environment variable and read it via <code>@Value("${llm.api-key}")</code>. A public GitHub repo with a committed API key will have it revoked within minutes of pushing.
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+function sw(id, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-' + id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+
+</script>
+</body>
+</html>
